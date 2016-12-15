@@ -39,7 +39,7 @@ int main(int argc, char **argv)
   
   const string code = file_resolver->GetFileContentOrDie(FLAGS_configuration_basename);
 
-  carto::common::LuaParameterDictionary lua_parameter_dictionary( code, std::move(file_resolver), nullptr);
+  carto::common::LuaParameterDictionary lua_parameter_dictionary( code, std::move(file_resolver));
   
   Node node(CreateNodeOptions(&lua_parameter_dictionary));
   
