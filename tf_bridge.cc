@@ -37,8 +37,16 @@ std::unique_ptr<::cartographer::transform::Rigid3d> TfBridge::LookupToTracking( 
       // for the full 'timeout' even if we ask for data that is too old.
    //   timeout = ::ros::Duration(0.);
    // }
-    return frame_id_to_tracking;
-   // return ::cartographer::common::make_unique<  ::cartographer::transform::Rigid3d>(ToRigid3d(/*buffer_->lookupTransform( tracking_frame_, frame_id, requested_time, timeout)*/  ));
+    //return frame_id_to_tracking;
+	  double w =1.; double x,y,z;
+	  x=y=z=0;
+	  double vx,vy,vz;
+	  vx=vy=vz=0;
+	  
+	  ::cartographer::transform::Rigid3d  ps ( Eigen::Vector3d(vx, vy, vz),Eigen::Quaterniond::Identity() 	);
+	  ::cartographer::transform::Rigid3d  pp;
+	  frame_id_to_tracking = ::cartographer::common::make_unique<  ::cartographer::transform::Rigid3d>(   pp);
+	  return  frame_id_to_tracking ;/*oRigid3d(/*buffer_->lookupTransform( tracking_frame_, frame_id, requested_time, timeout)  )*/
   } 
   catch (.../*const tf2::TransformException& ex*/)
   {

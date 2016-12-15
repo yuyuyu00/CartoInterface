@@ -25,8 +25,15 @@
 #include "node_options.h"
 #include "sensor_bridge.h"
 
+#include "MapPoint2D.h"
+#include "MapPoint3D.h"
+#include "IMUData.h"
+
 using namespace std;
 using namespace cartographer_ros;
+using namespace My;
+using namespace My::map2d;
+using namespace My::map3d;
 
 namespace carto = ::cartographer;
 
@@ -62,12 +69,20 @@ class Node
   void SpinForever();
   void Initialize();
   
+  
+  void HandleLaser(MapPoint3D& p);
+  
+  void HandleLaser(MapPoint& p);
+  
+  void HandleIMU(IMUData& p);
+  
   private:
   
    void SpinOccupancyGridThreadForever(); 
   const NodeOptions options_;
 
   TfBridge tf_bridge_;
+  
   
   // Set of all topics we subscribe to. We use the non-remapped default names  which are unique.
   std::unordered_set<string> expected_sensor_ids_; 

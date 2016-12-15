@@ -17,7 +17,7 @@
 #include "sensor_bridge.h"
 
 #include "cartographer/kalman_filter/pose_tracker.h"
-//#include "cartographer_ros/msg_conversion.h"
+#include "msg_conversion.h"
 //#include "cartographer_ros/time_conversion.h"
 
 namespace cartographer_ros {
@@ -54,6 +54,13 @@ SensorBridge::SensorBridge(
       tf_bridge_(tf_bridge),
       trajectory_builder_(trajectory_builder) {}
       
+      
+      
+      void SensorBridge::HandleMultiEchoLaserScanData(const string& topic,MapPoint* dat)
+	  {
+		  
+		  return;
+	  }
       
 /*
 void SensorBridge::HandleOdometryMessage(
@@ -111,8 +118,7 @@ void SensorBridge::HandleMultiEchoLaserScanMessage(
                        ToCartographer(*msg));
 }
 
-void SensorBridge::HandlePointCloud2Message(
-    const string& topic, const sensor_msgs::PointCloud2::ConstPtr& msg) {
+void SensorBridge::HandlePointCloud2Message(    const string& topic, const sensor_msgs::PointCloud2::ConstPtr& msg) {
   pcl::PointCloud<pcl::PointXYZ> pcl_point_cloud;
   pcl::fromROSMsg(*msg, pcl_point_cloud);
   const carto::common::Time time = FromRos(msg->header.stamp);
@@ -126,6 +132,51 @@ void SensorBridge::HandlePointCloud2Message(
             sensor_to_tracking->cast<float>()));
   }
 }*/
+
+
+
+void SensorBridge::HandleImuData(const string& topic,IMUData& p) 
+{
+	
+	const carto::common::Time time = Rostime2CartoTime(p.m_tm);
+	const auto sensor_to_tracking = tf_bridge_->LookupToTracking(	time, CheckNoLeadingSlash("imu_link"));
+	if (sensor_to_tracking != nullptr)
+	{
+// 		CHECK(sensor_to_tracking->translation().norm() < 1e-5)
+// 		<< "The IMU frame must be colocated with the tracking frame. "
+// 		"Transforming linear acceleration into the tracking frame will "
+// 		"otherwise be imprecise.";
+		trajectory_builder_->AddImuData(	topic, time,	sensor_to_tracking->rotation() * ToEigen(p.m_accx,p.m_accy,p.m_accz),
+											sensor_to_tracking->rotation() * ToEigen(p.m_gryx,p.m_gryy,p.m_gryz));
+	}
+}
+
+
+::cartographer::common::Time SensorBridge::Rostime2CartoTime(double tm)
+{
+	// The epoch of the ICU Universal Time Scale is "0001-01-01 00:00:00.0 +0000",
+	// exactly 719162 days before the Unix epoch.
+	long long tsec = (long long) floor(tm);
+	long long tnsec = (long long)(1000000000*(tm));
+	
+	return ::cartographer::common::FromUniversal((tsec + kUtsEpochOffsetFromUnixEpochInSeconds) * 10000000ll + 	(tnsec + 50) / 100);  // + 50 to get the rounding correct.
+}
+
+void SensorBridge::HandlePointCloudData(    const string& topic, const pcl::PointCloud<pcl::PointXYZ>& pcl_point_cloud,double tm) 
+{
+	const carto::common::Time time = Rostime2CartoTime(tm);
+	std::cout<<time<<std::endl;
+	//const auto sensor_to_tracking = tf_bridge_->LookupToTracking(	time, CheckNoLeadingSlash(topic));
+	carto::transform::Rigid3f sensor_to_tracking ;
+	//if (sensor_to_tracking != nullptr) {
+		std::cout<<sensor_to_tracking<<std::endl;
+		carto::sensor::LaserFan lan = carto::sensor::TransformLaserFan(	carto::sensor::FromProto(ToCartographer(pcl_point_cloud)),sensor_to_tracking);
+		std::cout<<"convert over"<<lan.returns.size()<<std::endl;
+		trajectory_builder_->AddLaserFan(	topic, time,	lan); /*sensor_to_tracking->cast<float>()*/
+		std::cout<<"add over"<<std::endl;
+		
+//	}
+}
 
 void SensorBridge::HandleLaserScanProto( const string& topic, const carto::common::Time time, const string& frame_id, const carto::sensor::proto::LaserScan& laser_scan) 
 {

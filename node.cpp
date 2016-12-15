@@ -1,5 +1,6 @@
 #include "node.h"
 
+using namespace cartographer_ros;
 
 Node::Node(const NodeOptions& options)
     : options_(options),
@@ -18,6 +19,38 @@ Node::~Node() {
   }
 }
 
+
+void Node::HandleLaser(MapPoint3D& p)
+{
+	
+	pcl::PointCloud<pcl::PointXYZ>* pointbase = dynamic_cast< pcl::PointCloud<pcl::PointXYZ>*>(&p);
+	
+	sensor_bridge_->HandlePointCloudData(string("3d"),*pointbase,p.m_tm);
+}
+
+void Node::HandleLaser(MapPoint& p)
+{
+	double tm = (double)p.tm.tSecond+ (double)p.tm.tMilliSecond/1000.;
+	
+	
+	pcl::PointCloud<pcl::PointXYZ> pointbase;
+	for(int i=0;i<p.lt.LaserNums;i++)
+	{
+		pointbase.push_back(pcl::PointXYZ(p.lt.laserPoint[i].x,p.lt.laserPoint[i].y,0));
+	}
+	
+	cout<<tm<<endl;
+	
+	sensor_bridge_->HandlePointCloudData(string("2d"),pointbase,tm);
+	
+	cout<<tm<<endl;
+	
+}
+
+void Node::HandleIMU(IMUData& p)
+{
+	sensor_bridge_->HandleImuData(string("imu"),p);
+}
 
 
 void Node::Initialize() 
@@ -42,7 +75,7 @@ void Node::Initialize()
   {
     std::cout<<"slam3d"<<std::endl;
     //给数据的接口
-    
+	expected_sensor_ids_.insert("3d");
     
     
   }
@@ -52,7 +85,7 @@ void Node::Initialize()
   if (options_.map_builder_options.use_trajectory_builder_3d() ||
       (options_.map_builder_options.use_trajectory_builder_2d() &&  options_.map_builder_options.trajectory_builder_2d_options().use_imu_data()) ) 
   {
-    
+	  expected_sensor_ids_.insert("imu");
   }
 
   //odom给数据的接口
@@ -92,7 +125,6 @@ void Node::Initialize()
 //       ::ros::WallDuration(options_.pose_publish_period_sec),
 //       &Node::PublishPoseAndScanMatchedPointCloud, this));
 }
-
 
 
 

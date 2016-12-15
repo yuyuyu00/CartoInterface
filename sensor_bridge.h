@@ -23,6 +23,15 @@
 
 
  #include "tf_bridge.h"
+ 
+ #include "MapPoint3D.h"
+ #include "MapPoint2D.h"
+ #include "IMUData.h"
+
+ using namespace My::map3d;
+ using namespace My::map2d;
+using namespace My;
+ 
 // #include "geometry_msgs/Transform.h"
 // #include "geometry_msgs/TransformStamped.h"
 // #include "nav_msgs/OccupancyGrid.h"
@@ -54,7 +63,16 @@ class SensorBridge {
 //   void HandleLaserScanMessage(const string& topic, const sensor_msgs::LaserScan::ConstPtr& msg);
 //   void HandleMultiEchoLaserScanMessage( const string& topic, const sensor_msgs::MultiEchoLaserScan::ConstPtr& msg);
 //   void HandlePointCloud2Message(const string& topic,   const sensor_msgs::PointCloud2::ConstPtr& msg);
+  
+  void HandleMultiEchoLaserScanData(const string& topic,MapPoint* dat);
 
+  void HandlePointCloudData(   const string& topic, const pcl::PointCloud<pcl::PointXYZ>& pcl_point_cloud,double tm) ;
+  
+  cartographer::common::Time Rostime2CartoTime(double tm);
+  
+  void HandleImuData(const string& topic,IMUData& p) ;
+  
+  
  private:
   void HandleLaserScanProto(
       const string& topic, const ::cartographer::common::Time time,
