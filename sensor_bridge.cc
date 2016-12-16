@@ -169,37 +169,25 @@ void SensorBridge::HandlePointCloudData(    const string& topic, const pcl::Poin
 	//const auto sensor_to_tracking = tf_bridge_->LookupToTracking(	time, CheckNoLeadingSlash(topic));
 	carto::transform::Rigid3f sensor_to_tracking ;
 	//if (sensor_to_tracking != nullptr) {
-		std::cout<<sensor_to_tracking<<std::endl;
-		carto::sensor::LaserFan lan = carto::sensor::TransformLaserFan(	carto::sensor::FromProto(ToCartographer(pcl_point_cloud)),sensor_to_tracking);
-		std::cout<<"convert over"<<lan.returns.size()<<std::endl;
-		//trajectory_builder_->add
-		
 		carto::sensor::PointCloud pointcloud;
-		for(const auto& point:pcl_point_cloud)
+		for (const auto& point : pcl_point_cloud)
 		{
-			pointcloud.emplace_back(point.x,point.y,point.z);
+			pointcloud.emplace_back(point.x, point.y, point.z);
 		}
-		
-		trajectory_builder_->AddRangefinderData(	topic, time,	sensor_to_tracking.translation(),carto::sensor::TransformPointCloud( pointcloud,sensor_to_tracking)   ); /*sensor_to_tracking->cast<float>()*/
-		std::cout<<"add over"<<std::endl;
-		
-		
-		
+
+		trajectory_builder_->AddRangefinderData(topic, time, sensor_to_tracking.translation(), carto::sensor::TransformPointCloud(pointcloud, sensor_to_tracking));
 		
 //	}
 }
 
-// void SensorBridge::HandleLaserScanProto( const string& topic, const carto::common::Time time, const string& frame_id, const carto::sensor::proto::LaserScan& laser_scan) 
-// {
-//   const carto::sensor::LaserFan laser_fan = {   Eigen::Vector3f::Zero(),   carto::sensor::ToPointCloud(laser_scan),   {},   {}};
-//   const auto sensor_to_tracking =    tf_bridge_->LookupToTracking(time, CheckNoLeadingSlash(frame_id));
-//   if (sensor_to_tracking != nullptr)
-//   {
-// 	  
-// 	  //trajectory_builder_->AddRangefinderData( topic, time,sensor_to_tracking->translation(), 
-// 		//									   carto::sensor::TransformLaserFan(  laser_fan, sensor_to_tracking->cast<float>())
-// 		//									 );
-//   }
-// }
+//void SensorBridge::HandleLaserScanProto( const string& topic, const carto::common::Time time, const string& frame_id, const carto::sensor::proto::LaserScan& laser_scan) 
+//{
+//  const carto::sensor::LaserFan laser_fan = {   Eigen::Vector3f::Zero(),   carto::sensor::ToPointCloud(laser_scan),   {},   {}};
+//  const auto sensor_to_tracking =    tf_bridge_->LookupToTracking(time, CheckNoLeadingSlash(frame_id));
+//  if (sensor_to_tracking != nullptr)
+//  {
+//    trajectory_builder_->AddRangefinderData( topic, time, sensor_to_tracking->cast<float>(), laser_fan);
+//  }
+//}
 
 }  // namespace cartographer_ros

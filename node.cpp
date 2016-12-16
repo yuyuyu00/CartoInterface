@@ -57,7 +57,7 @@ void Node::Initialize()
 {
   carto::common::MutexLocker lock(&mutex_);
 
-  //æ¿€å…‰ç»™æ•°æ®çš„æ¥å£
+  //¼¤¹â¸øÊı¾İµÄ½Ó¿Ú
   // For 2D SLAM, subscribe to exactly one horizontal laser.
   if (options_.use_horizontal_laser)  	 
   {   
@@ -74,13 +74,13 @@ void Node::Initialize()
   if (options_.num_lasers_3d > 0) 
   {
     std::cout<<"slam3d"<<std::endl;
-    //ç»™æ•°æ®çš„æ¥å£
+    //¸øÊı¾İµÄ½Ó¿Ú
 	expected_sensor_ids_.insert("3d");
     
     
   }
 
-  //IMUç»™æ•°æ®çš„æ¥å£
+  //IMU¸øÊı¾İµÄ½Ó¿Ú
   // For 2D SLAM, subscribe to the IMU if we expect it. For 3D SLAM, the IMU is required.
   if (options_.map_builder_options.use_trajectory_builder_3d() ||
       (options_.map_builder_options.use_trajectory_builder_2d() &&  options_.map_builder_options.trajectory_builder_2d_options().use_imu_data()) ) 
@@ -88,7 +88,7 @@ void Node::Initialize()
 	  expected_sensor_ids_.insert("imu");
   }
 
-  //odomç»™æ•°æ®çš„æ¥å£
+  //odom¸øÊı¾İµÄ½Ó¿Ú
   if (options_.use_odometry_data) {
     
   }
@@ -145,7 +145,7 @@ void Node::SpinOccupancyGridThreadForever()
     {
       continue;
     }
-    //æ„å»ºæ ¼ç½‘ä¸æ˜¾ç¤º
+    //¹¹½¨¸ñÍøÓëÏÔÊ¾
     
     //::nav_msgs::OccupancyGrid occupancy_grid;
     //BuildOccupancyGrid(trajectory_nodes, options_, &occupancy_grid);

@@ -16,7 +16,7 @@
 
 #include "time_conversion.h"
 
-#include "cartographer/common/time.h"
+#include "cartographer/common/mytime.h"
 //#include "ros/ros.h"
 
 namespace cartographer_ros {

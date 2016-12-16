@@ -17,7 +17,7 @@
 #include "msg_conversion.h"
 
 #include "cartographer/common/port.h"
-#include "cartographer/common/time.h"
+#include "cartographer/common/mytime.h"
 #include "cartographer/sensor/proto/sensor.pb.h"
 #include "cartographer/transform/proto/transform.pb.h"
 #include "cartographer/transform/transform.h"

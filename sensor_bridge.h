@@ -74,10 +74,10 @@ class SensorBridge {
   
   
  private:
-//   void HandleLaserScanProto(
-//       const string& topic, const ::cartographer::common::Time time,
-//       const string& frame_id,
-//       const ::cartographer::sensor::proto::LaserScan& laser_scan);
+  //void HandleLaserScanProto(
+  //    const string& topic, const ::cartographer::common::Time time,
+  //    const string& frame_id,
+  //    const ::cartographer::sensor::proto::LaserScan& laser_scan);
 
   const SensorBridgeOptions options_;
   const TfBridge* const tf_bridge_;
