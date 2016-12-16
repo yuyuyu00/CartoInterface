@@ -28,6 +28,7 @@
 #include "MapPoint2D.h"
 #include "MapPoint3D.h"
 #include "IMUData.h"
+#include "CommonFun.h"
 
 using namespace std;
 using namespace cartographer_ros;
@@ -76,6 +77,10 @@ class Node
   
   void HandleIMU(IMUData& p);
   
+  void DrawTrajectory(vector<carto::mapping::TrajectoryNode> trajectory_nodes);
+  
+  bool HandleSubmapQuery(int index);
+  
   private:
   
    void SpinOccupancyGridThreadForever(); 
@@ -83,7 +88,7 @@ class Node
 
   TfBridge tf_bridge_;
   
-  
+  My::CDrawPoint2D dr;
   // Set of all topics we subscribe to. We use the non-remapped default names  which are unique.
   std::unordered_set<string> expected_sensor_ids_; 
   
@@ -94,7 +99,7 @@ class Node
   carto::mapping::MapBuilder map_builder_ GUARDED_BY(mutex_);
   
   std::unique_ptr<SensorBridge> sensor_bridge_ GUARDED_BY(mutex_);
-  
+   
   int trajectory_id_ = -1 GUARDED_BY(mutex_);
   
   carto::common::Time last_scan_matched_point_cloud_time_ =  carto::common::Time::min();

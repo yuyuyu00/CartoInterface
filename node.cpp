@@ -7,7 +7,8 @@ Node::Node(const NodeOptions& options)
      // tf_buffer_(::ros::Duration(1000)),
       //tf_(tf_buffer_),
       tf_bridge_(options_.tracking_frame, options_.lookup_transform_timeout_sec),
-      map_builder_(options.map_builder_options, &constant_data_) {}
+      map_builder_(options.map_builder_options, &constant_data_) 
+	  {	}
 
 Node::~Node() {
   {
@@ -17,6 +18,65 @@ Node::~Node() {
   if (occupancy_grid_thread_.joinable()) {
     occupancy_grid_thread_.join();
   }
+}
+
+  
+bool Node::HandleSubmapQuery(int submap_id)
+{
+//	carto::common::MutexLocker lock(&mutex_);
+	
+	const carto::mapping::Submaps* submaps =	map_builder_.GetTrajectoryBuilder(trajectory_id_)->submaps();
+	
+	if (submap_id < 0 || submap_id >= submaps->size())  return false;
+	
+	carto::mapping::proto::SubmapQuery::Response response_proto;
+	
+	//response_proto.set_submap_id(submap_id);
+	response_proto.set_submap_version(submaps->Get(submap_id)->end_laser_fan_index);
+	const std::vector<carto::transform::Rigid3d> submap_transforms = map_builder_.sparse_pose_graph()->GetSubmapTransforms(*submaps);
+	submaps->SubmapToProto(submap_id,  map_builder_.sparse_pose_graph()->GetTrajectoryNodes(),  submap_transforms[submap_id], &response_proto);
+	cout<<response_proto.ByteSize()<<endl;
+	
+	string celldata = response_proto.cells();
+	
+	
+	for(auto it = celldata.begin();it!=celldata.end();it++)
+	{
+		//const uint8 alpha = *it
+		
+	}
+	
+	for(int i=0;i<response_proto.height();i++)
+		for(int j=0;j<response_proto.width();j++)
+		{
+			
+		}
+	
+}
+
+void Node::DrawTrajectory(vector<cartographer::mapping::TrajectoryNode> trajectory_nodes)
+{
+	
+	
+	
+	vector<My::DrawPoint> pts;
+	My::DrawPoint pt;
+	for(int i=0;i<trajectory_nodes.size();i++)
+	{
+		carto::transform::Rigid3d rd = trajectory_nodes[i].pose;
+		carto::transform::Rigid3d::Vector trans = rd.translation();
+		pt.x = trans[0];
+		pt.y =  trans[1];
+		pt.z = 0;
+	//	cout<<pt.x<<" "<<pt.y<<" "<<pt.z<<endl;
+	//	cout<<rd<<endl;
+		
+		pts.push_back(pt);
+	}
+	dr.SetLinesRuningTime(pts);
+	dr.SetWaitKey(1);
+	cout<<trajectory_nodes.size()<<endl;
+	
 }
 
 
@@ -39,11 +99,11 @@ void Node::HandleLaser(MapPoint& p)
 		pointbase.push_back(pcl::PointXYZ(p.lt.laserPoint[i].x,p.lt.laserPoint[i].y,0));
 	}
 	
-	cout<<tm<<endl;
+	//cout<<tm<<endl;
 	
 	sensor_bridge_->HandlePointCloudData(string("2d"),pointbase,tm);
 	
-	cout<<tm<<endl;
+	//cout<<tm<<endl;
 	
 }
 
@@ -109,9 +169,11 @@ void Node::Initialize()
 //         node_handle_.advertise<::nav_msgs::OccupancyGrid>(
 //             kOccupancyGridTopic, kLatestOnlyPublisherQueueSize,
 //             true /* latched */);
-    occupancy_grid_thread_ =    std::thread(&Node::SpinOccupancyGridThreadForever, this);
   }
 
+  occupancy_grid_thread_ =    std::thread(&Node::SpinOccupancyGridThreadForever, this);
+  
+  
 //   scan_matched_point_cloud_publisher_ =
 //       node_handle_.advertise<sensor_msgs::PointCloud2>(
 //           kScanMatchedPointCloudTopic, kLatestOnlyPublisherQueueSize);
@@ -141,12 +203,20 @@ void Node::SpinOccupancyGridThreadForever()
     }
     
     const auto trajectory_nodes =  map_builder_.sparse_pose_graph()->GetTrajectoryNodes();
+	cout<<trajectory_nodes.size()<<endl;
     if (trajectory_nodes.empty()) 
     {
       continue;
     }
-    //构建格网与显示
+
+    DrawTrajectory(trajectory_nodes);
     
+	const carto::mapping::Submaps* submaps = map_builder_.GetTrajectoryBuilder(trajectory_id_)->submaps();
+	if(submaps->size()>0)
+	{
+			HandleSubmapQuery(0);
+	}
+
     //::nav_msgs::OccupancyGrid occupancy_grid;
     //BuildOccupancyGrid(trajectory_nodes, options_, &occupancy_grid);
    // occupancy_grid_publisher_.publish(occupancy_grid);
