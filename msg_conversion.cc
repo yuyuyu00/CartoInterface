@@ -16,8 +16,13 @@
 
 #include "msg_conversion.h"
 
+#ifdef WIN32
+	#include "cartographer/common/mytime.h"
+#else
+	#include "cartographer/common/time.h"
+#endif 
+
 #include "cartographer/common/port.h"
-#include "cartographer/common/time.h"
 #include "cartographer/sensor/proto/sensor.pb.h"
 #include "cartographer/transform/proto/transform.pb.h"
 #include "cartographer/transform/transform.h"

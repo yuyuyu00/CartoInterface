@@ -1,33 +1,48 @@
 cmake_minimum_required(VERSION 2.8.7)
+project(Interface)
 
-project(test1)
-set(CMAKE_BUILD_TYPE "RelWithDebInfo")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-#SET(CMAKE_MODULE_PATH "/home/yuyuyu00/desk/CartographerNew/install/share/cartographer/") 
-#set(Cartographer_DIR "/home/yuyuyu00/desk/CartographerNew/install/")
-#SET(CMAKE_MODULE_PATH )
-
-find_package(cartographer REQUIRED HINTS "/home/yuyuyu00/desk/CartographerNew/install/share/cartographer")
-find_package(MyTools REQUIRED HINTS "/home/yuyuyu00/desk/CartographerNew/install/share/MyTools")
-find_package(PCL  REQUIRED )
-find_package(OpenCV  REQUIRED )
-FIND_LIBRARY(GFLAGS_LIBRARIES gflags /usr/lib/i386-linux-gnu)
-
-message("cmake---"  ${CMAKE_MODULE_PATH} )
-message("include---"  ${CARTOGRAPHER_INCLUDE_DIRS} )
-
 aux_source_directory(. SRC)
-add_executable(test1  ${SRC})
+add_executable(${PROJECT_NAME}  ${SRC})
 
-include_directories(${CARTOGRAPHER_INCLUDE_DIRS})
-include_directories(${MyTools_INCLUDE_DIRS})
-include_directories(${PCL_INCLUDE_DIRS}) 
-include_directories(${OPENCV_INCLUDE_DIRS})
+if(MSVC)
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_FLAGS /DEBUG)
+	include_directories(../../../cartographer/cartographer/include)
+	include_directories(../Tools)
+	include_directories(${LUA_INCLUDE_DIR})
+	include_directories(${CERES_INCLUDE_DIRS})
+	include_directories(${EIGEN3_INCLUDE_DIR})
+	include_directories(${GLOG_INCLUDE_DIRS})
+	include_directories(${PCL_INCLUDE_DIRS})
+	
+	target_link_libraries(${PROJECT_NAME} cartographer ${GFLAGS_LIBRARIES} Tools ${PCL_LIBRARIES} )
+	target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${WEBP_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${LUA_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${CERES_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${EIGEN3_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${GLOG_LIBRARIES})
+	target_link_libraries(${PROJECT_NAME} ${CAIRO_LIBRARIES})
 
-#target_link_libraries(test1)
-#message("current---"  ${CARTOGRAPHER_LIBRARIES} )
-target_link_libraries(test1 ${CARTOGRAPHER_LIBRARIES} ${GFLAGS_LIBRARIES} ${MyTools_LIBS} ${PCL_LIBRARIES}  ${OpenCV_LIBS} )
+
+else(MSVC)
+    find_package(cartographer REQUIRED HINTS "/home/yuyuyu00/desk/CartographerNew/install/share/cartographer")
+	find_package(MyTools REQUIRED HINTS "/home/yuyuyu00/desk/CartographerNew/install/share/MyTools")
+	FIND_LIBRARY(GFLAGS_LIBRARIES gflags /usr/lib/i386-linux-gnu)
+	find_package(OpenCV  REQUIRED )
+	find_package(PCL  REQUIRED )
+	
+	include_directories(${CARTOGRAPHER_INCLUDE_DIRS})
+	include_directories(${MyTools_INCLUDE_DIRS})
+	include_directories(${OPENCV_INCLUDE_DIRS})
+	include_directories(${PCL_INCLUDE_DIRS})
+	
+	target_link_libraries(${PROJECT_NAME} ${CARTOGRAPHER_LIBRARIES} ${GFLAGS_LIBRARIES} ${MyTools_LIBS} ${PCL_LIBRARIES}  ${OpenCV_LIBS} )
+
+endif()
 
 
-install(TARGETS test1 RUNTIME DESTINATION bin)
+	
+
+
+

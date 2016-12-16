@@ -17,7 +17,14 @@
 #ifndef CARTOGRAPHER_ROS_GOOGLE_CARTOGRAPHER_SRC_TIME_CONVERSION_H_
 #define CARTOGRAPHER_ROS_GOOGLE_CARTOGRAPHER_SRC_TIME_CONVERSION_H_
 
+#ifdef WIN32
+#include "cartographer/common/mytime.h"
+
+#else
 #include "cartographer/common/time.h"
+
+#endif 
+
 //#include "ros/ros.h"
 
 namespace cartographer_ros {

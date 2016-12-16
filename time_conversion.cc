@@ -16,7 +16,14 @@
 
 #include "time_conversion.h"
 
+#ifdef WIN32
+#include "cartographer/common/mytime.h"
+
+#else
 #include "cartographer/common/time.h"
+
+#endif 
+
 //#include "ros/ros.h"
 
 namespace cartographer_ros {
