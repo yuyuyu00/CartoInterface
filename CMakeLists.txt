@@ -22,7 +22,7 @@ add_executable(test1  ${SRC})
 
 include_directories(${CARTOGRAPHER_INCLUDE_DIRS})
 include_directories(${MyTools_INCLUDE_DIRS})
-include_directories(${PCL_INCLUDE_DIRS})
+include_directories(${PCL_INCLUDE_DIRS}) 
 include_directories(${OPENCV_INCLUDE_DIRS})
 
 #target_link_libraries(test1)
